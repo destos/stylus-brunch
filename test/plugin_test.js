@@ -57,13 +57,15 @@ describe('Plugin', function() {
 @import \"./valid3.styl\"\n\
 @import '../../vendor/styles/valid4'\n\
 @import 'nib'\n\
+@import 'path_test'\n\
 ";
 
       var expected = [
         sysPath.join('app', 'styles', 'valid1.styl'),
         sysPath.join('app', 'styles', '__--valid2--.styl'),
         sysPath.join('app', 'styles', 'valid3.styl'),
-        sysPath.join('vendor', 'styles', 'valid4.styl')
+        sysPath.join('vendor', 'styles', 'valid4.styl'),
+        sysPath.join('test', 'support', 'path_test.styl')
       ];
       
       plugin.getDependencies(content, fileName, function(error, dependencies) {

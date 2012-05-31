@@ -1,6 +1,7 @@
 nib = require 'nib'
 stylus = require 'stylus'
 sysPath = require 'path'
+fs = require 'fs'
 
 module.exports = class StylusCompiler
   brunchPlugin: yes
@@ -27,6 +28,7 @@ module.exports = class StylusCompiler
   getDependencies: (data, path, callback) =>
     paths = data.match(@_dependencyRegExp) or []
     parent = sysPath.dirname path
+    stylusPaths = @config.stylus?.paths || false
     dependencies = paths
       .map (path) =>
         res = @_dependencyRegExp.exec(path)
@@ -38,6 +40,19 @@ module.exports = class StylusCompiler
           path + ".#{@extension}"
         else
           path
-      .map(sysPath.join.bind(null, parent))
+      .map (path) =>
+        result = null
+        if stylusPaths
+          stylusPaths.forEach (includePath) ->
+            resolvedPath = sysPath.resolve( includePath, path )
+            try
+              fs.openSync(resolvedPath, 'r')
+            catch error
+              return
+            result = resolvedPath 
+        if not result
+          return sysPath.join.bind(null, parent)(path)
+          
+        return sysPath.relative @config.paths.root, result
     process.nextTick =>
       callback null, dependencies
